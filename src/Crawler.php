@@ -57,7 +57,7 @@ class Crawler
         $response = $this->proxy->getHttpResponse($googleUrl);
         $stringResponse = (string) $response->getBody();
         $domCrawler = new DomCrawler($stringResponse);
-        $googleResultList = $domCrawler->filterXPath('//div[@class="ZINbbc xpd O9g5cc uUPGi"]');
+        $googleResultList = $domCrawler->filter('body > div')->children();
         if ($googleResultList->count() === 0) {
             throw new InvalidGoogleHtmlException('No parseable element found');
         }
@@ -94,8 +94,9 @@ class Crawler
             ?? 'A description for this result isn\'t available due to the robots.txt file.';
 
         $googleResult = new Result();
+        $title = $resultLink->getNode()->firstChild->textContent;
         $googleResult
-            ->setTitle($resultLink->getNode()->nodeValue)
+            ->setTitle($title)
             ->setUrl($this->parseUrl($resultLink->getUri()))
             ->setDescription($description);
 
@@ -120,7 +121,7 @@ class Crawler
     private function getGoogleUrl(): string
     {
         $domain = $this->googleDomain;
-        $url = "https://$domain/search?q={$this->searchTerm}&num=100";
+        $url = "https://www.$domain/search?q={$this->searchTerm}&num=100&ie=UTF-8&aomd=1&start=0";
         if (!empty($this->countryCode)) {
             $url .= "&gl={$this->countryCode}";
         }
@@ -139,12 +140,14 @@ class Crawler
 
     private function parseDomElement(DOMElement $result): Result
     {
+
         $resultCrawler = new DomCrawler($result);
+
         $linkElement = $resultCrawler->filterXPath('//a')->getNode(0);
+
         if (is_null($linkElement)) {
             throw new InvalidResultException('Link element not found');
         }
-
         $resultLink = new Link($linkElement, 'http://google.com/');
         $descriptionElement = $resultCrawler->filterXPath('//div[@class="BNeawe s3v9rd AP7Wnd"]//div[@class="BNeawe s3v9rd AP7Wnd"]')->getNode(0);
 
@@ -160,7 +163,6 @@ class Crawler
             throw new InvalidResultException('Result is a google suggestion');
         }
 
-        $googleResult = $this->createResult($resultLink, $descriptionElement);
-        return $googleResult;
+        return $this->createResult($resultLink, $descriptionElement);
     }
 }
