@@ -18,7 +18,7 @@
         "ext-ds": "Allow IDE autocomplete for editing the component"
     },
     "scripts": {
-        "phpunit": "phpunit --coverage-clover=coverage.clover",
+        "phpunit": "phpunit --coverage-clover=coverage.clover"
     },
     "autoload": {
         "psr-4": {
