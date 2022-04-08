@@ -1,5 +1,5 @@
 {
-    "name": "cviniciussdias/google-crawler",
+    "name": "inbo/google-crawler",
     "description": "A simple Crawler for getting Google results",
     "keywords": ["google", "crawler", "search"],
     "type": "library",
